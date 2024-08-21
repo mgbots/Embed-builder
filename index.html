@@ -15,6 +15,7 @@
             color: #fff;
             margin: 0;
             height: 100vh;
+            overflow: hidden; /* Prevent scrolling during shake effect */
         }
         .container {
             max-width: 800px;
@@ -23,6 +24,7 @@
             background: #2f3136; /* Discord dark background */
             padding: 20px;
             box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            position: relative;
         }
         label {
             margin-top: 10px;
@@ -30,13 +32,14 @@
             color: #b9bbbe; /* Light gray for labels */
         }
         input, textarea {
-            width: 100%;
+            width: calc(100% - 20px);
             padding: 10px;
             margin-top: 5px;
             border-radius: 4px;
             border: 1px solid #3f4248; /* Darker border for inputs */
             background: #36393f; /* Darker background for inputs */
             color: #fff;
+            box-sizing: border-box;
         }
         textarea {
             height: 100px;
@@ -84,12 +87,26 @@
             background: #2f3136;
         }
         #notification {
-            margin-top: 20px;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             color: #fff;
-            background: #3ba55c; /* Success color */
+            background: #f44336; /* Error color */
             padding: 10px;
             border-radius: 4px;
             display: none;
+            z-index: 1000;
+        }
+        .shake {
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
         }
     </style>
 </head>
@@ -133,13 +150,22 @@
         <h2>Generated JSON:</h2>
         <pre id="output" onclick="copyJSON()"></pre>
 
-        <div id="notification">JSON Copied!</div>
+        <div id="notification">Exceeds max limit!</div>
     </div>
 
     <script>
+        const FIELD_LIMIT = 25; // Maximum fields allowed
+        const CHAR_LIMIT = 1024; // Maximum characters for title and description
+
         let fieldCount = 0;
 
         function addField() {
+            if (fieldCount >= FIELD_LIMIT) {
+                showNotification("Exceeds max number of fields!");
+                shakeScreen();
+                return;
+            }
+
             fieldCount++;
             const fieldsContainer = document.getElementById('fields');
             const fieldDiv = document.createElement('div');
@@ -147,10 +173,10 @@
             fieldDiv.id = `field-${fieldCount}`;
             fieldDiv.innerHTML = `
                 <label for="fieldName-${fieldCount}">Field Name:</label>
-                <input type="text" id="fieldName-${fieldCount}">
+                <input type="text" id="fieldName-${fieldCount}" maxlength="${CHAR_LIMIT}">
 
                 <label for="fieldValue-${fieldCount}">Field Value:</label>
-                <textarea id="fieldValue-${fieldCount}"></textarea>
+                <textarea id="fieldValue-${fieldCount}" maxlength="${CHAR_LIMIT}"></textarea>
 
                 <button type="button" onclick="removeField(${fieldCount})">Remove Field</button>
             `;
@@ -161,6 +187,7 @@
             const fieldDiv = document.getElementById(`field-${id}`);
             if (fieldDiv) {
                 fieldDiv.remove();
+                fieldCount--;
                 updatePreview();
             }
         }
@@ -169,9 +196,19 @@
             const jsonData = {};
 
             const title = document.getElementById('title').value.trim();
+            if (title.length > CHAR_LIMIT) {
+                showNotification("Exceeds max characters for title!");
+                shakeScreen();
+                return;
+            }
             if (title) jsonData.title = title;
 
             const description = document.getElementById('description').value.trim();
+            if (description.length > CHAR_LIMIT) {
+                showNotification("Exceeds max characters for description!");
+                shakeScreen();
+                return;
+            }
             if (description) jsonData.description = description;
 
             const color = parseInt(document.getElementById('color').value, 10);
@@ -203,32 +240,42 @@
                 if (fieldName && fieldValue) {
                     const name = fieldName.value.trim();
                     const value = fieldValue.value.trim();
-                    if (name || value) {
-                        fields.push({
-                            name: name,
-                            value: value,
-                            inline: false // You can add an option to make fields inline if needed
-                        });
+                    if (name.length > CHAR_LIMIT) {
+                        showNotification("Exceeds max characters for field name!");
+                        shakeScreen();
+                        return;
                     }
+                    if (value.length > CHAR_LIMIT) {
+                        showNotification("Exceeds max characters for field value!");
+                        shakeScreen();
+                        return;
+                    }
+                    if (name && value) fields.push({ name, value });
                 }
             }
             if (fields.length > 0) jsonData.fields = fields;
 
-            const output = document.getElementById('output');
-            output.textContent = JSON.stringify([jsonData], null, 2);
-            output.classList.remove('copied');
+            document.getElementById('output').textContent = JSON.stringify(jsonData, null, 2);
         }
 
         function copyJSON() {
             const output = document.getElementById('output');
             navigator.clipboard.writeText(output.textContent).then(() => {
-                const notification = document.getElementById('notification');
-                notification.style.display = 'block';
                 output.classList.add('copied');
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 2000);
+                setTimeout(() => output.classList.remove('copied'), 2000);
             });
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => notification.style.display = 'none', 5000);
+        }
+
+        function shakeScreen() {
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 500);
         }
     </script>
 </body>
