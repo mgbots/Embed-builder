@@ -14,8 +14,8 @@
             background: linear-gradient(135deg, #7289DA, #40444B); /* Discord-like gradient */
             color: #fff;
             margin: 0;
-            height: 100vh;
-            overflow: hidden; /* Prevent scrolling during shake effect */
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
         }
         .container {
             max-width: 800px;
@@ -25,6 +25,7 @@
             padding: 20px;
             box-shadow: 0 0 15px rgba(0,0,0,0.3);
             position: relative;
+            overflow-y: auto; /* Enable vertical scrolling if needed */
         }
         label {
             margin-top: 10px;
@@ -87,7 +88,7 @@
             background: #2f3136;
         }
         #notification {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
@@ -261,8 +262,7 @@
         function copyJSON() {
             const output = document.getElementById('output');
             navigator.clipboard.writeText(output.textContent).then(() => {
-                output.classList.add('copied');
-                setTimeout(() => output.classList.remove('copied'), 2000);
+                showNotification("JSON Copied!");
             });
         }
 
