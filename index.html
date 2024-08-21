@@ -116,16 +116,16 @@
         <h1>Discord JSON Generator</h1>
         <form id="jsonForm">
             <label for="title">Title:</label>
-            <input type="text" id="title">
+            <input type="text" id="title" maxlength="256">
 
             <label for="description">Description:</label>
-            <textarea id="description"></textarea>
+            <textarea id="description" maxlength="4096"></textarea>
 
             <label for="color">Color (decimal):</label>
             <input type="number" id="color" min="0">
 
             <label for="footerText">Footer Text:</label>
-            <input type="text" id="footerText">
+            <input type="text" id="footerText" maxlength="2048">
 
             <label for="footerIcon">Footer Icon URL:</label>
             <input type="url" id="footerIcon">
@@ -134,7 +134,7 @@
             <input type="url" id="thumbnailUrl">
 
             <label for="authorName">Author Name:</label>
-            <input type="text" id="authorName">
+            <input type="text" id="authorName" maxlength="256">
 
             <label for="authorIcon">Author Icon URL:</label>
             <input type="url" id="authorIcon">
@@ -151,12 +151,17 @@
         <h2>Generated JSON:</h2>
         <pre id="output" onclick="copyJSON()"></pre>
 
-        <div id="notification">Exceeds max limit!</div>
+        <div id="notification">Notification</div>
     </div>
 
     <script>
         const FIELD_LIMIT = 25; // Maximum fields allowed
-        const CHAR_LIMIT = 1024; // Maximum characters for title and description
+        const CHAR_LIMIT_FIELD_NAME = 256; // Field name limit
+        const CHAR_LIMIT_FIELD_VALUE = 1024; // Field value limit
+        const CHAR_LIMIT_TITLE = 256; // Title limit
+        const CHAR_LIMIT_DESCRIPTION = 4096; // Description limit
+        const CHAR_LIMIT_FOOTER = 2048; // Footer limit
+        const CHAR_LIMIT_AUTHOR = 256; // Author name limit
 
         let fieldCount = 0;
 
@@ -174,10 +179,10 @@
             fieldDiv.id = `field-${fieldCount}`;
             fieldDiv.innerHTML = `
                 <label for="fieldName-${fieldCount}">Field Name:</label>
-                <input type="text" id="fieldName-${fieldCount}" maxlength="${CHAR_LIMIT}">
+                <input type="text" id="fieldName-${fieldCount}" maxlength="${CHAR_LIMIT_FIELD_NAME}">
 
                 <label for="fieldValue-${fieldCount}">Field Value:</label>
-                <textarea id="fieldValue-${fieldCount}" maxlength="${CHAR_LIMIT}"></textarea>
+                <textarea id="fieldValue-${fieldCount}" maxlength="${CHAR_LIMIT_FIELD_VALUE}"></textarea>
 
                 <button type="button" onclick="removeField(${fieldCount})">Remove Field</button>
             `;
@@ -197,7 +202,7 @@
             const jsonData = {};
 
             const title = document.getElementById('title').value.trim();
-            if (title.length > CHAR_LIMIT) {
+            if (title.length > CHAR_LIMIT_TITLE) {
                 showNotification("Exceeds max characters for title!");
                 shakeScreen();
                 return;
@@ -205,7 +210,7 @@
             if (title) jsonData.title = title;
 
             const description = document.getElementById('description').value.trim();
-            if (description.length > CHAR_LIMIT) {
+            if (description.length > CHAR_LIMIT_DESCRIPTION) {
                 showNotification("Exceeds max characters for description!");
                 shakeScreen();
                 return;
@@ -218,6 +223,11 @@
             const footerText = document.getElementById('footerText').value.trim();
             const footerIcon = document.getElementById('footerIcon').value.trim();
             if (footerText || footerIcon) {
+                if (footerText.length > CHAR_LIMIT_FOOTER) {
+                    showNotification("Exceeds max characters for footer text!");
+                    shakeScreen();
+                    return;
+                }
                 jsonData.footer = {};
                 if (footerText) jsonData.footer.text = footerText;
                 if (footerIcon) jsonData.footer.icon_url = footerIcon;
@@ -229,40 +239,54 @@
             const authorName = document.getElementById('authorName').value.trim();
             const authorIcon = document.getElementById('authorIcon').value.trim();
             if (authorName || authorIcon) {
+                if (authorName.length > CHAR_LIMIT_AUTHOR) {
+                    showNotification("Exceeds max characters for author name!");
+                    shakeScreen();
+                    return;
+                }
                 jsonData.author = {};
                 if (authorName) jsonData.author.name = authorName;
                 if (authorIcon) jsonData.author.icon_url = authorIcon;
             }
 
             const fields = [];
+            let totalChars = 0;
+
             for (let i = 1; i <= fieldCount; i++) {
-                const fieldName = document.getElementById(`fieldName-${i}`);
-                const fieldValue = document.getElementById(`fieldValue-${i}`);
+                const fieldName = document.getElementById(`fieldName-${i}`)?.value.trim();
+                const fieldValue = document.getElementById(`fieldValue-${i}`)?.value.trim();
+                
                 if (fieldName && fieldValue) {
-                    const name = fieldName.value.trim();
-                    const value = fieldValue.value.trim();
-                    if (name.length > CHAR_LIMIT) {
+                    if (fieldName.length > CHAR_LIMIT_FIELD_NAME) {
                         showNotification("Exceeds max characters for field name!");
                         shakeScreen();
                         return;
                     }
-                    if (value.length > CHAR_LIMIT) {
+                    if (fieldValue.length > CHAR_LIMIT_FIELD_VALUE) {
                         showNotification("Exceeds max characters for field value!");
                         shakeScreen();
                         return;
                     }
-                    if (name && value) fields.push({ name, value });
+                    fields.push({ name: fieldName, value: fieldValue });
+                    totalChars += fieldName.length + fieldValue.length;
+                    if (totalChars > 6000) {
+                        showNotification("Exceeds total character limit for embed!");
+                        shakeScreen();
+                        return;
+                    }
                 }
             }
             if (fields.length > 0) jsonData.fields = fields;
 
-            document.getElementById('output').textContent = JSON.stringify(jsonData, null, 2);
+            document.getElementById('output').textContent = JSON.stringify([jsonData], null, 2);
         }
 
         function copyJSON() {
             const output = document.getElementById('output');
             navigator.clipboard.writeText(output.textContent).then(() => {
                 showNotification("JSON Copied!");
+                output.classList.add('copied');
+                setTimeout(() => output.classList.remove('copied'), 500);
             });
         }
 
