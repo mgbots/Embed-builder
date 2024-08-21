@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord JSON Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #7289DA, #40444B); /* Discord-like gradient */
+            color: #fff;
+            margin: 0;
+            height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            border-radius: 8px;
+            background: #2f3136; /* Discord dark background */
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+        label {
+            margin-top: 10px;
+            display: block;
+            color: #b9bbbe; /* Light gray for labels */
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #3f4248; /* Darker border for inputs */
+            background: #36393f; /* Darker background for inputs */
+            color: #fff;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #7289DA; /* Discord blue */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #5b6dcd; /* Darker Discord blue */
+        }
+        .fields-container {
+            margin-top: 20px;
+        }
+        .field-item {
+            border: 1px solid #3f4248;
+            background: #2f3136;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .field-item button {
+            background-color: #f44336; /* Red for remove button */
+        }
+        .field-item button:hover {
+            background-color: #d32f2f;
+        }
+        #output {
+            background: #36393f;
+            border: 1px solid #3f4248;
+            border-radius: 8px;
+            padding: 10px;
+            white-space: pre-wrap; /* Preserve whitespace in JSON output */
+            word-wrap: break-word;
+            cursor: pointer;
+        }
+        #output.copied {
+            background: #2f3136;
+        }
+        #notification {
+            margin-top: 20px;
+            color: #fff;
+            background: #3ba55c; /* Success color */
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Discord JSON Generator</h1>
+        <form id="jsonForm">
+            <label for="title">Title:</label>
+            <input type="text" id="title">
+
+            <label for="description">Description:</label>
+            <textarea id="description"></textarea>
+
+            <label for="color">Color (decimal):</label>
+            <input type="number" id="color" min="0">
+
+            <label for="footerText">Footer Text:</label>
+            <input type="text" id="footerText">
+
+            <label for="footerIcon">Footer Icon URL:</label>
+            <input type="url" id="footerIcon">
+
+            <label for="thumbnailUrl">Thumbnail URL:</label>
+            <input type="url" id="thumbnailUrl">
+
+            <label for="authorName">Author Name:</label>
+            <input type="text" id="authorName">
+
+            <label for="authorIcon">Author Icon URL:</label>
+            <input type="url" id="authorIcon">
+
+            <div class="fields-container">
+                <h2>Fields:</h2>
+                <div id="fields"></div>
+                <button type="button" onclick="addField()">Add Field</button>
+            </div>
+
+            <button type="button" onclick="generateJSON()">Generate JSON</button>
+        </form>
+
+        <h2>Generated JSON:</h2>
+        <pre id="output" onclick="copyJSON()"></pre>
+
+        <div id="notification">JSON Copied!</div>
+    </div>
+
+    <script>
+        let fieldCount = 0;
+
+        function addField() {
+            fieldCount++;
+            const fieldsContainer = document.getElementById('fields');
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'field-item';
+            fieldDiv.id = `field-${fieldCount}`;
+            fieldDiv.innerHTML = `
+                <label for="fieldName-${fieldCount}">Field Name:</label>
+                <input type="text" id="fieldName-${fieldCount}">
+
+                <label for="fieldValue-${fieldCount}">Field Value:</label>
+                <textarea id="fieldValue-${fieldCount}"></textarea>
+
+                <button type="button" onclick="removeField(${fieldCount})">Remove Field</button>
+            `;
+            fieldsContainer.appendChild(fieldDiv);
+        }
+
+        function removeField(id) {
+            const fieldDiv = document.getElementById(`field-${id}`);
+            if (fieldDiv) {
+                fieldDiv.remove();
+                updatePreview();
+            }
+        }
+
+        function generateJSON() {
+            const jsonData = {};
+
+            const title = document.getElementById('title').value.trim();
+            if (title) jsonData.title = title;
+
+            const description = document.getElementById('description').value.trim();
+            if (description) jsonData.description = description;
+
+            const color = parseInt(document.getElementById('color').value, 10);
+            if (!isNaN(color)) jsonData.color = color;
+
+            const footerText = document.getElementById('footerText').value.trim();
+            const footerIcon = document.getElementById('footerIcon').value.trim();
+            if (footerText || footerIcon) {
+                jsonData.footer = {};
+                if (footerText) jsonData.footer.text = footerText;
+                if (footerIcon) jsonData.footer.icon_url = footerIcon;
+            }
+
+            const thumbnailUrl = document.getElementById('thumbnailUrl').value.trim();
+            if (thumbnailUrl) jsonData.thumbnail = { url: thumbnailUrl };
+
+            const authorName = document.getElementById('authorName').value.trim();
+            const authorIcon = document.getElementById('authorIcon').value.trim();
+            if (authorName || authorIcon) {
+                jsonData.author = {};
+                if (authorName) jsonData.author.name = authorName;
+                if (authorIcon) jsonData.author.icon_url = authorIcon;
+            }
+
+            const fields = [];
+            for (let i = 1; i <= fieldCount; i++) {
+                const fieldName = document.getElementById(`fieldName-${i}`);
+                const fieldValue = document.getElementById(`fieldValue-${i}`);
+                if (fieldName && fieldValue) {
+                    const name = fieldName.value.trim();
+                    const value = fieldValue.value.trim();
+                    if (name || value) {
+                        fields.push({
+                            name: name,
+                            value: value,
+                            inline: false // You can add an option to make fields inline if needed
+                        });
+                    }
+                }
+            }
+            if (fields.length > 0) jsonData.fields = fields;
+
+            const output = document.getElementById('output');
+            output.textContent = JSON.stringify([jsonData], null, 2);
+            output.classList.remove('copied');
+        }
+
+        function copyJSON() {
+            const output = document.getElementById('output');
+            navigator.clipboard.writeText(output.textContent).then(() => {
+                const notification = document.getElementById('notification');
+                notification.style.display = 'block';
+                output.classList.add('copied');
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
