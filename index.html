@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord JSON Generator</title>
-    <link rel="icon" href="path/to/your/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="https://YOUR_GITHUB_PAGES_URL/assets/favicon.ico" type="image/x-icon"> <!-- Update path -->
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -13,7 +13,7 @@
             align-items: center;
             padding: 0;
             margin: 0;
-            background: url('background.jpg') no-repeat center center fixed;
+            background: url('https://YOUR_GITHUB_PAGES_URL/assets/background.jpg') no-repeat center center fixed; /* Update path */
             background-size: cover;
             color: #fff;
             min-height: 100vh;
@@ -157,7 +157,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="path/to/your/icon.png" alt="Icon">
+        <img src="https://YOUR_GITHUB_PAGES_URL/assets/icon.png" alt="Icon"> <!-- Update path -->
         <h1>Embed Generator by MagicGamer</h1>
     </div>
 
@@ -230,22 +230,21 @@
             fieldDiv.id = `field-${fieldCount}`;
             fieldDiv.innerHTML = `
                 <label for="fieldName-${fieldCount}">Field Name:</label>
-                <input type="text" id="fieldName-${fieldCount}" maxlength="${CHAR_LIMIT_FIELD_NAME}">
+                <input type="text" id="fieldName-${fieldCount}" maxlength="256">
 
                 <label for="fieldValue-${fieldCount}">Field Value:</label>
-                <textarea id="fieldValue-${fieldCount}" maxlength="${CHAR_LIMIT_FIELD_VALUE}"></textarea>
+                <textarea id="fieldValue-${fieldCount}" maxlength="1024"></textarea>
 
                 <button type="button" onclick="removeField(${fieldCount})">Remove Field</button>
             `;
             fieldsContainer.appendChild(fieldDiv);
         }
 
-        function removeField(id) {
-            const fieldDiv = document.getElementById(`field-${id}`);
+        function removeField(fieldId) {
+            const fieldDiv = document.getElementById(`field-${fieldId}`);
             if (fieldDiv) {
                 fieldDiv.remove();
                 fieldCount--;
-                updatePreview();
             }
         }
 
