@@ -4,7 +4,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord JSON Generator</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            background: linear-gradient(135deg, #7289DA, #40444B); /* Discord-like gradient */
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+        .header {
+            width: 100%;
+            background: linear-gradient(135deg, #0377fc, #8921ff);
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            position: relative;
+            top: 0;
+            border-radius: 0 0 8px 8px; /* Rounded bottom corners */
+        }
+        .header img {
+            height: 40px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .header h1 {
+            display: inline;
+            font-size: 24px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 400;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            border-radius: 8px;
+            background: #2f3136; /* Discord dark background */
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            margin-top: 20px; /* Space below the header */
+            position: relative;
+            overflow-y: auto; /* Enable vertical scrolling if needed */
+        }
+        label {
+            margin-top: 10px;
+            display: block;
+            color: #b9bbbe; /* Light gray for labels */
+        }
+        input, textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #3f4248; /* Darker border for inputs */
+            background: #36393f; /* Darker background for inputs */
+            color: #fff;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #7289DA; /* Discord blue */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #5b6dcd; /* Darker Discord blue */
+        }
+        .fields-container {
+            margin-top: 20px;
+        }
+        .field-item {
+            border: 1px solid #3f4248;
+            background: #2f3136;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .field-item button {
+            background-color: #f44336; /* Red for remove button */
+        }
+        .field-item button:hover {
+            background-color: #d32f2f;
+        }
+        #output {
+            background: #36393f;
+            border: 1px solid #3f4248;
+            border-radius: 8px;
+            padding: 10px;
+            white-space: pre-wrap; /* Preserve whitespace in JSON output */
+            word-wrap: break-word;
+            cursor: pointer;
+        }
+        #output.copied {
+            background: #2f3136;
+        }
+        #notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            background: #f44336; /* Error color */
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            z-index: 1000;
+        }
+        .color-link {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px 10px;
+            background: linear-gradient(135deg, #ff4b1f, #ff9068); /* Rainbow gradient */
+            color: #fff;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .color-link:hover {
+            background: linear-gradient(135deg, #ff9068, #ff4b1f); /* Reverse gradient on hover */
+        }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -22,10 +154,8 @@
             <textarea id="description" maxlength="4096"></textarea>
 
             <label for="color">Color (decimal):</label>
-            <div class="color-container">
-                <input type="number" id="color" min="0">
-                <a href="https://colors.magicgamer.xyz/" target="_blank" class="color-link">Need to generate color?</a>
-            </div>
+            <input type="number" id="color" min="0">
+            <a href="https://colors.magicgamer.xyz/" target="_blank" class="color-link">Need to generate color?</a>
 
             <label for="footerText">Footer Text:</label>
             <input type="text" id="footerText" maxlength="2048">
@@ -54,9 +184,143 @@
         <h2>Generated JSON:</h2>
         <pre id="output" onclick="copyJSON()"></pre>
 
-        <div id="notification"></div>
+        <div id="notification">Notification</div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const FIELD_LIMIT = 25; // Maximum fields allowed
+        const CHAR_LIMIT_FIELD_NAME = 256; // Field name limit
+        const CHAR_LIMIT_FIELD_VALUE = 1024; // Field value limit
+        const CHAR_LIMIT_TITLE = 256; // Title limit
+        const CHAR_LIMIT_DESCRIPTION = 4096; // Description limit
+        const CHAR_LIMIT_FOOTER = 2048; // Footer limit
+        const CHAR_LIMIT_AUTHOR = 256; // Author name limit
+
+        let fieldCount = 0;
+
+        function addField() {
+            if (fieldCount >= FIELD_LIMIT) {
+                showNotification("Exceeds max number of fields!");
+                return;
+            }
+
+            fieldCount++;
+            const fieldsContainer = document.getElementById('fields');
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'field-item';
+            fieldDiv.id = `field-${fieldCount}`;
+            fieldDiv.innerHTML = `
+                <label for="fieldName-${fieldCount}">Field Name:</label>
+                <input type="text" id="fieldName-${fieldCount}" maxlength="${CHAR_LIMIT_FIELD_NAME}">
+
+                <label for="fieldValue-${fieldCount}">Field Value:</label>
+                <textarea id="fieldValue-${fieldCount}" maxlength="${CHAR_LIMIT_FIELD_VALUE}"></textarea>
+
+                <button type="button" onclick="removeField(${fieldCount})">Remove Field</button>
+            `;
+            fieldsContainer.appendChild(fieldDiv);
+        }
+
+        function removeField(id) {
+            const fieldDiv = document.getElementById(`field-${id}`);
+            if (fieldDiv) {
+                fieldDiv.remove();
+                fieldCount--;
+                updatePreview();
+            }
+        }
+
+        function generateJSON() {
+            const jsonData = {};
+
+            const title = document.getElementById('title').value.trim();
+            if (title.length > CHAR_LIMIT_TITLE) {
+                showNotification("Exceeds max characters for title!");
+                return;
+            }
+            if (title) jsonData.title = title;
+
+            const description = document.getElementById('description').value.trim();
+            if (description.length > CHAR_LIMIT_DESCRIPTION) {
+                showNotification("Exceeds max characters for description!");
+                return;
+            }
+            if (description) jsonData.description = description;
+
+            const color = parseInt(document.getElementById('color').value, 10);
+            if (!isNaN(color)) jsonData.color = color;
+
+            const footerText = document.getElementById('footerText').value.trim();
+            const footerIcon = document.getElementById('footerIcon').value.trim();
+            if (footerText || footerIcon) {
+                if (footerText.length > CHAR_LIMIT_FOOTER) {
+                    showNotification("Exceeds max characters for footer text!");
+                    return;
+                }
+                jsonData.footer = {};
+                if (footerText) jsonData.footer.text = footerText;
+                if (footerIcon) jsonData.footer.icon_url = footerIcon;
+            }
+
+            const thumbnailUrl = document.getElementById('thumbnailUrl').value.trim();
+            if (thumbnailUrl) jsonData.thumbnail = { url: thumbnailUrl };
+
+            const authorName = document.getElementById('authorName').value.trim();
+            const authorIcon = document.getElementById('authorIcon').value.trim();
+            if (authorName || authorIcon) {
+                if (authorName.length > CHAR_LIMIT_AUTHOR) {
+                    showNotification("Exceeds max characters for author name!");
+                    return;
+                }
+                jsonData.author = {};
+                if (authorName) jsonData.author.name = authorName;
+                if (authorIcon) jsonData.author.icon_url = authorIcon;
+            }
+
+            const fields = [];
+            let totalChars = 0;
+
+            for (let i = 1; i <= fieldCount; i++) {
+                const fieldName = document.getElementById(`fieldName-${i}`)?.value.trim();
+                const fieldValue = document.getElementById(`fieldValue-${i}`)?.value.trim();
+                
+                if (fieldName && fieldValue) {
+                    if (fieldName.length > CHAR_LIMIT_FIELD_NAME) {
+                        showNotification("Exceeds max characters for field name!");
+                        return;
+                    }
+                    if (fieldValue.length > CHAR_LIMIT_FIELD_VALUE) {
+                        showNotification("Exceeds max characters for field value!");
+                        return;
+                    }
+                    fields.push({ name: fieldName, value: fieldValue });
+                    totalChars += fieldName.length + fieldValue.length;
+                    if (totalChars > 6000) {
+                        showNotification("Exceeds total character limit for embed!");
+                        return;
+                    }
+                }
+            }
+            if (fields.length > 0) jsonData.fields = fields;
+
+            document.getElementById('output').textContent = JSON.stringify([jsonData], null, 2);
+        }
+
+        function copyJSON() {
+            const output = document.getElementById('output');
+            navigator.clipboard.writeText(output.textContent).then(() => {
+                showNotification("JSON Copied!");
+                output.classList.add('copied');
+                setTimeout(() => output.classList.remove('copied'), 500);
+            });
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => notification.style.display = 'none', 5000);
+        }
+    </script>
 </body>
 </html>
