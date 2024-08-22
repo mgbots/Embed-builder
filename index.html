@@ -55,6 +55,35 @@
             display: block;
             color: #b9bbbe; /* Light gray for labels */
         }
+        .color-field {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .color-field input {
+            width: 100%;
+            padding: 10px;
+            margin: 0;
+            border-radius: 4px;
+            border: 1px solid #3f4248; /* Darker border for inputs */
+            background: #36393f; /* Darker background for inputs */
+            color: #fff;
+            box-sizing: border-box;
+        }
+        .color-link {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px 10px;
+            background: linear-gradient(135deg, #ff4b1f, #ff9068); /* Rainbow gradient */
+            color: #fff;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .color-link:hover {
+            background: linear-gradient(135deg, #ff9068, #ff4b1f); /* Reverse gradient on hover */
+        }
         input, textarea {
             width: calc(100% - 20px);
             padding: 10px;
@@ -122,20 +151,6 @@
             display: none;
             z-index: 1000;
         }
-        .color-link {
-            display: inline-block;
-            margin-left: 10px;
-            padding: 5px 10px;
-            background: linear-gradient(135deg, #ff4b1f, #ff9068); /* Rainbow gradient */
-            color: #fff;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .color-link:hover {
-            background: linear-gradient(135deg, #ff9068, #ff4b1f); /* Reverse gradient on hover */
-        }
     </style>
 </head>
 <body>
@@ -153,9 +168,11 @@
             <label for="description">Description:</label>
             <textarea id="description" maxlength="4096"></textarea>
 
-            <label for="color">Color (decimal):</label>
-            <input type="number" id="color" min="0">
-            <a href="https://colors.magicgamer.xyz/" target="_blank" class="color-link">Need to generate color?</a>
+            <div class="color-field">
+                <label for="color">Color (decimal):</label>
+                <input type="number" id="color" min="0">
+                <a href="https://colors.magicgamer.xyz/" target="_blank" class="color-link">Need to generate color?</a>
+            </div>
 
             <label for="footerText">Footer Text:</label>
             <input type="text" id="footerText" maxlength="2048">
@@ -234,20 +251,24 @@
             const jsonData = {};
 
             const title = document.getElementById('title').value.trim();
-            if (title.length > CHAR_LIMIT_TITLE) {
-                showNotification("Exceeds max characters for title!");
-                return;
+            if (title) {
+                if (title.length > CHAR_LIMIT_TITLE) {
+                    showNotification("Exceeds max characters for title!");
+                    return;
+                }
+                jsonData.title = title;
             }
-            if (title) jsonData.title = title;
 
             const description = document.getElementById('description').value.trim();
-            if (description.length > CHAR_LIMIT_DESCRIPTION) {
-                showNotification("Exceeds max characters for description!");
-                return;
+            if (description) {
+                if (description.length > CHAR_LIMIT_DESCRIPTION) {
+                    showNotification("Exceeds max characters for description!");
+                    return;
+                }
+                jsonData.description = description;
             }
-            if (description) jsonData.description = description;
 
-            const color = parseInt(document.getElementById('color').value, 10);
+            const color = parseInt(document.getElementById('color').value.trim(), 10);
             if (!isNaN(color)) jsonData.color = color;
 
             const footerText = document.getElementById('footerText').value.trim();
