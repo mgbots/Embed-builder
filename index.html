@@ -6,16 +6,37 @@
     <title>Discord JSON Generator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 0;
+            margin: 0;
             background: linear-gradient(135deg, #7289DA, #40444B); /* Discord-like gradient */
             color: #fff;
-            margin: 0;
             min-height: 100vh;
             overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+        .header {
+            width: 100%;
+            background: linear-gradient(135deg, #0377fc, #8921ff);
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            position: relative;
+            top: 0;
+        }
+        .header img {
+            height: 40px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .header h1 {
+            display: inline;
+            font-size: 24px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 400;
         }
         .container {
             max-width: 800px;
@@ -99,19 +120,14 @@
             display: none;
             z-index: 1000;
         }
-        .shake {
-            animation: shake 0.5s;
-        }
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
-            75% { transform: translateX(-10px); }
-            100% { transform: translateX(0); }
-        }
     </style>
 </head>
 <body>
+    <div class="header">
+        <img src="path/to/your/icon.png" alt="Icon">
+        <h1>Embed Generator by MagicGamer</h1>
+    </div>
+
     <div class="container">
         <h1>Discord JSON Generator</h1>
         <form id="jsonForm">
@@ -168,7 +184,6 @@
         function addField() {
             if (fieldCount >= FIELD_LIMIT) {
                 showNotification("Exceeds max number of fields!");
-                shakeScreen();
                 return;
             }
 
@@ -204,7 +219,6 @@
             const title = document.getElementById('title').value.trim();
             if (title.length > CHAR_LIMIT_TITLE) {
                 showNotification("Exceeds max characters for title!");
-                shakeScreen();
                 return;
             }
             if (title) jsonData.title = title;
@@ -212,7 +226,6 @@
             const description = document.getElementById('description').value.trim();
             if (description.length > CHAR_LIMIT_DESCRIPTION) {
                 showNotification("Exceeds max characters for description!");
-                shakeScreen();
                 return;
             }
             if (description) jsonData.description = description;
@@ -225,7 +238,6 @@
             if (footerText || footerIcon) {
                 if (footerText.length > CHAR_LIMIT_FOOTER) {
                     showNotification("Exceeds max characters for footer text!");
-                    shakeScreen();
                     return;
                 }
                 jsonData.footer = {};
@@ -241,7 +253,6 @@
             if (authorName || authorIcon) {
                 if (authorName.length > CHAR_LIMIT_AUTHOR) {
                     showNotification("Exceeds max characters for author name!");
-                    shakeScreen();
                     return;
                 }
                 jsonData.author = {};
@@ -259,19 +270,16 @@
                 if (fieldName && fieldValue) {
                     if (fieldName.length > CHAR_LIMIT_FIELD_NAME) {
                         showNotification("Exceeds max characters for field name!");
-                        shakeScreen();
                         return;
                     }
                     if (fieldValue.length > CHAR_LIMIT_FIELD_VALUE) {
                         showNotification("Exceeds max characters for field value!");
-                        shakeScreen();
                         return;
                     }
                     fields.push({ name: fieldName, value: fieldValue });
                     totalChars += fieldName.length + fieldValue.length;
                     if (totalChars > 6000) {
                         showNotification("Exceeds total character limit for embed!");
-                        shakeScreen();
                         return;
                     }
                 }
@@ -295,11 +303,6 @@
             notification.textContent = message;
             notification.style.display = 'block';
             setTimeout(() => notification.style.display = 'none', 5000);
-        }
-
-        function shakeScreen() {
-            document.body.classList.add('shake');
-            setTimeout(() => document.body.classList.remove('shake'), 500);
         }
     </script>
 </body>
