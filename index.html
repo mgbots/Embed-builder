@@ -204,7 +204,7 @@
         </form>
 
         <h2>Generated JSON:</h2>
-        <pre id="output" onclick="copyJSON()"></pre>
+        <pre id="output" onclick="copyJSON()">[{}]</pre>
 
         <div id="notification">Notification</div>
     </div>
@@ -300,7 +300,7 @@
             };
 
             const output = document.getElementById('output');
-            output.textContent = JSON.stringify(embed, null, 2);
+            output.textContent = JSON.stringify(embed, null, 2) || '[{}]'; // Default to [ {} ] if empty
             output.classList.remove('copied');
         }
 
