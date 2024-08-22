@@ -204,7 +204,7 @@
         </form>
 
         <h2>Generated JSON:</h2>
-        <pre id="output" onclick="copyJSON()">[{}]</pre>
+        <pre id="output" onclick="copyJSON()"></pre>
 
         <div id="notification">Notification</div>
     </div>
@@ -243,8 +243,8 @@
             fieldsContainer.appendChild(fieldDiv);
         }
 
-        function removeField(fieldId) {
-            const fieldDiv = document.getElementById(`field-${fieldId}`);
+        function removeField(index) {
+            const fieldDiv = document.getElementById(`field-${index}`);
             if (fieldDiv) {
                 fieldDiv.remove();
                 fieldCount--;
@@ -288,6 +288,11 @@
                 }
             }
 
+            if (!title && !description && !color && !footerText && !footerIcon && !thumbnailUrl && !imageUrl && !authorName && !authorIcon && fields.length === 0) {
+                document.getElementById('output').textContent = '[]';
+                return;
+            }
+
             const embed = {
                 title: title || undefined,
                 description: description || undefined,
@@ -300,7 +305,7 @@
             };
 
             const output = document.getElementById('output');
-            output.textContent = JSON.stringify(embed, null, 2) || '[{}]'; // Default to [ {} ] if empty
+            output.textContent = JSON.stringify(embed, null, 2);
             output.classList.remove('copied');
         }
 
