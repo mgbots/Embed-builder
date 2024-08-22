@@ -185,6 +185,9 @@
             <label for="thumbnailUrl">Thumbnail URL:</label>
             <input type="url" id="thumbnailUrl">
 
+            <label for="imageUrl">Image URL:</label> <!-- Added Image URL field -->
+            <input type="url" id="imageUrl">
+
             <label for="authorName">Author Name:</label>
             <input type="text" id="authorName" maxlength="256">
 
@@ -242,106 +245,74 @@
 
         function removeField(fieldId) {
             const fieldDiv = document.getElementById(`field-${fieldId}`);
-            if (fieldDiv) {
-                fieldDiv.remove();
-                fieldCount--;
-            }
+            fieldDiv.remove();
+            fieldCount--;
         }
 
         function generateJSON() {
-            const jsonData = {};
-
-            const title = document.getElementById('title').value.trim();
-            if (title) {
-                if (title.length > CHAR_LIMIT_TITLE) {
-                    showNotification("Exceeds max characters for title!");
-                    return;
-                }
-                jsonData.title = title;
-            }
-
-            const description = document.getElementById('description').value.trim();
-            if (description) {
-                if (description.length > CHAR_LIMIT_DESCRIPTION) {
-                    showNotification("Exceeds max characters for description!");
-                    return;
-                }
-                jsonData.description = description;
-            }
-
-            const color = parseInt(document.getElementById('color').value.trim(), 10);
-            if (!isNaN(color)) jsonData.color = color;
-
-            const footerText = document.getElementById('footerText').value.trim();
-            const footerIcon = document.getElementById('footerIcon').value.trim();
-            if (footerText || footerIcon) {
-                if (footerText.length > CHAR_LIMIT_FOOTER) {
-                    showNotification("Exceeds max characters for footer text!");
-                    return;
-                }
-                jsonData.footer = {};
-                if (footerText) jsonData.footer.text = footerText;
-                if (footerIcon) jsonData.footer.icon_url = footerIcon;
-            }
-
-            const thumbnailUrl = document.getElementById('thumbnailUrl').value.trim();
-            if (thumbnailUrl) jsonData.thumbnail = { url: thumbnailUrl };
-
-            const authorName = document.getElementById('authorName').value.trim();
-            const authorIcon = document.getElementById('authorIcon').value.trim();
-            if (authorName || authorIcon) {
-                if (authorName.length > CHAR_LIMIT_AUTHOR) {
-                    showNotification("Exceeds max characters for author name!");
-                    return;
-                }
-                jsonData.author = {};
-                if (authorName) jsonData.author.name = authorName;
-                if (authorIcon) jsonData.author.icon_url = authorIcon;
-            }
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const color = document.getElementById('color').value;
+            const footerText = document.getElementById('footerText').value;
+            const footerIcon = document.getElementById('footerIcon').value;
+            const thumbnailUrl = document.getElementById('thumbnailUrl').value;
+            const imageUrl = document.getElementById('imageUrl').value; // Capture Image URL field
+            const authorName = document.getElementById('authorName').value;
+            const authorIcon = document.getElementById('authorIcon').value;
 
             const fields = [];
-            let totalChars = 0;
-
             for (let i = 1; i <= fieldCount; i++) {
-                const fieldName = document.getElementById(`fieldName-${i}`)?.value.trim();
-                const fieldValue = document.getElementById(`fieldValue-${i}`)?.value.trim();
-                
-                if (fieldName && fieldValue) {
-                    if (fieldName.length > CHAR_LIMIT_FIELD_NAME) {
-                        showNotification("Exceeds max characters for field name!");
-                        return;
-                    }
-                    if (fieldValue.length > CHAR_LIMIT_FIELD_VALUE) {
-                        showNotification("Exceeds max characters for field value!");
-                        return;
-                    }
-                    fields.push({ name: fieldName, value: fieldValue });
-                    totalChars += fieldName.length + fieldValue.length;
-                    if (totalChars > 6000) {
-                        showNotification("Exceeds total character limit for embed!");
-                        return;
-                    }
-                }
+                const fieldName = document.getElementById(`fieldName-${i}`).value;
+                const fieldValue = document.getElementById(`fieldValue-${i}`).value;
+                fields.push({
+                    name: fieldName,
+                    value: fieldValue
+                });
             }
-            if (fields.length > 0) jsonData.fields = fields;
 
-            document.getElementById('output').textContent = JSON.stringify([jsonData], null, 2);
+            const embed = {
+                title: title,
+                description: description,
+                color: color ? parseInt(color, 10) : undefined,
+                footer: footerText ? {
+                    text: footerText,
+                    icon_url: footerIcon
+                } : undefined,
+                thumbnail: thumbnailUrl ? { url: thumbnailUrl } : undefined,
+                image: imageUrl ? { url: imageUrl } : undefined, // Add Image URL to JSON
+                author: authorName ? {
+                    name: authorName,
+                    icon_url: authorIcon
+                } : undefined,
+                fields: fields
+            };
+
+            const jsonOutput = JSON.stringify({ embeds: [embed] }, null, 4);
+            document.getElementById('output').textContent = jsonOutput;
         }
 
         function copyJSON() {
             const output = document.getElementById('output');
-            navigator.clipboard.writeText(output.textContent).then(() => {
-                showNotification("JSON Copied!");
-                output.classList.add('copied');
-                setTimeout(() => output.classList.remove('copied'), 500);
-            });
+            const range = document.createRange();
+            range.selectNode(output);
+            window.getSelection().removeAllRanges(); // Clear current selection
+            window.getSelection().addRange(range); // Select the content
+            try {
+                document.execCommand('copy');
+                showNotification('JSON copied to clipboard!');
+            } catch (err) {
+                console.error('Failed to copy JSON', err);
+            }
+            window.getSelection().removeAllRanges(); // Deselect the content
         }
 
         function showNotification(message) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.style.display = 'block';
-            setTimeout(() => notification.style.display = 'none', 5000);
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
         }
     </script>
 </body>
