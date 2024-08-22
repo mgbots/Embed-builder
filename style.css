@@ -34,7 +34,7 @@ body {
 }
 .container {
     max-width: 800px;
-    width: 100%;
+    width: 90%;
     border-radius: 8px;
     background: #2f3136; /* Discord dark background */
     padding: 20px;
