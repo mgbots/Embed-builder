@@ -5,6 +5,7 @@ const CHAR_LIMIT_TITLE = 256; // Title limit
 const CHAR_LIMIT_DESCRIPTION = 4096; // Description limit
 const CHAR_LIMIT_FOOTER = 2048; // Footer limit
 const CHAR_LIMIT_AUTHOR = 256; // Author name limit
+const CHAR_LIMIT_TOTAL = 6000; // Total character limit for embed
 
 let fieldCount = 0;
 
@@ -36,7 +37,6 @@ function removeField(id) {
     if (fieldDiv) {
         fieldDiv.remove();
         fieldCount--;
-        updatePreview();
     }
 }
 
@@ -105,7 +105,7 @@ function generateJSON() {
             }
             fields.push({ name: fieldName, value: fieldValue });
             totalChars += fieldName.length + fieldValue.length;
-            if (totalChars > 6000) {
+            if (totalChars > CHAR_LIMIT_TOTAL) {
                 showNotification("Exceeds total character limit for embed!");
                 return;
             }
