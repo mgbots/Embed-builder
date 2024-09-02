@@ -1,213 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord JSON Generator</title>
-    <link rel="icon" href="https://embeds.magicgamer.xyz/favicon.ico" type="image/x-icon"> <!-- Update path -->
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0;
-            margin: 0;
-            background: url('https://embeds.magicgamer.xyz/background.png') no-repeat center center fixed; /* Update path */
-            background-size: cover;
-            color: #fff;
-            min-height: 100vh;
-            overflow-x: hidden; /* Prevent horizontal scrolling */
-        }
-        .header {
-            width: 100%;
-            background: linear-gradient(135deg, #0377fc, #8921ff);
-            color: #fff;
-            text-align: center;
-            padding: 20px 0;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            position: relative;
-            top: 0;
-            border-radius: 0 0 8px 8px; /* Rounded bottom corners */
-        }
-        .header img {
-            height: 40px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        .header h1 {
-            display: inline;
-            font-size: 24px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-weight: 400;
-        }
-        .container {
-            max-width: 800px;
-            width: 100%;
-            border-radius: 8px;
-            background: #2f3136; /* Discord dark background */
-            padding: 20px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-            margin-top: 20px; /* Space below the header */
-            position: relative;
-            overflow-y: auto; /* Enable vertical scrolling if needed */
-        }
-        label {
-            margin-top: 10px;
-            display: block;
-            color: #b9bbbe; /* Light gray for labels */
-        }
-        .color-field {
-            display: flex;
-            align-items: center;
-            margin-top: 5px;
-        }
-        .color-field input {
-            width: 100%;
-            padding: 10px;
-            margin: 0;
-            border-radius: 4px;
-            border: 1px solid #3f4248; /* Darker border for inputs */
-            background: #36393f; /* Darker background for inputs */
-            color: #fff;
-            box-sizing: border-box;
-        }
-        .color-link {
-            display: inline-block;
-            margin-left: 10px;
-            padding: 5px 10px;
-            background: linear-gradient(135deg, #ff4b1f, #ff9068); /* Rainbow gradient */
-            color: #fff;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .color-link:hover {
-            background: linear-gradient(135deg, #ff9068, #ff4b1f); /* Reverse gradient on hover */
-        }
-        input, textarea {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 4px;
-            border: 1px solid #3f4248; /* Darker border for inputs */
-            background: #36393f; /* Darker background for inputs */
-            color: #fff;
-            box-sizing: border-box;
-        }
-        textarea {
-            height: 100px;
-            resize: vertical;
-        }
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #7289DA; /* Discord blue */
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #5b6dcd; /* Darker Discord blue */
-        }
-        .fields-container {
-            margin-top: 20px;
-        }
-        .field-item {
-            border: 1px solid #3f4248;
-            background: #2f3136;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-        .field-item button {
-            background-color: #f44336; /* Red for remove button */
-        }
-        .field-item button:hover {
-            background-color: #d32f2f;
-        }
-        #output {
-            background: #36393f;
-            border: 1px solid #3f4248;
-            border-radius: 8px;
-            padding: 10px;
-            white-space: pre-wrap; /* Preserve whitespace in JSON output */
-            word-wrap: break-word;
-            cursor: pointer;
-        }
-        #output.copied {
-            background: #2f3136;
-        }
-        #notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            background: #f44336; /* Error color */
-            padding: 10px;
-            border-radius: 4px;
-            display: none;
-            z-index: 1000;
-        }
-    </style>
+    <!-- Your existing head content remains the same -->
 </head>
 <body>
-    <div class="header">
-        <img src="https://embeds.magicgamer.xyz/jsonembedicon.png" alt="Icon"> <!-- Update path -->
-        <h1>Embed Generator by MagicGamer</h1>
-    </div>
-
-    <div class="container">
-        <h1>Discord JSON Generator</h1>
-        <form id="jsonForm">
-            <label for="title">Title:</label>
-            <input type="text" id="title" maxlength="256">
-
-            <label for="description">Description:</label>
-            <textarea id="description" maxlength="4096"></textarea>
-
-            <div class="color-field">
-                <label for="color">Color (decimal):</label>
-                <input type="number" id="color" min="0">
-                <a href="https://colors.magicgamer.xyz/" target="_blank" class="color-link">Need to generate color?</a>
-            </div>
-
-            <label for="footerText">Footer Text:</label>
-            <input type="text" id="footerText" maxlength="2048">
-
-            <label for="footerIcon">Footer Icon URL:</label>
-            <input type="url" id="footerIcon">
-
-            <label for="thumbnailUrl">Thumbnail URL:</label>
-            <input type="url" id="thumbnailUrl">
-
-            <label for="imageUrl">Image URL:</label> <!-- New field -->
-            <input type="url" id="imageUrl">
-
-            <label for="authorName">Author Name:</label>
-            <input type="text" id="authorName" maxlength="256">
-
-            <label for="authorIcon">Author Icon URL:</label>
-            <input type="url" id="authorIcon">
-
-            <div class="fields-container">
-                <h2>Fields:</h2>
-                <div id="fields"></div>
-                <button type="button" onclick="addField()">Add Field</button>
-            </div>
-
-            <button type="button" onclick="generateJSON()">Generate JSON</button>
-        </form>
-
-        <h2>Generated JSON:</h2>
-        <pre id="output" onclick="copyJSON()"></pre>
-
-        <div id="notification">Notification</div>
-    </div>
+    <!-- Your existing body content remains the same -->
 
     <script>
         const FIELD_LIMIT = 25; // Maximum fields allowed
@@ -237,6 +34,9 @@
 
                 <label for="fieldValue-${fieldCount}">Field Value:</label>
                 <textarea id="fieldValue-${fieldCount}" maxlength="1024"></textarea>
+
+                <label for="fieldInline-${fieldCount}">Inline:</label>
+                <input type="checkbox" id="fieldInline-${fieldCount}">
 
                 <button type="button" onclick="removeField(${fieldCount})">Remove Field</button>
             `;
@@ -290,7 +90,7 @@
             const thumbnailUrl = document.getElementById('thumbnailUrl').value.trim();
             if (thumbnailUrl) jsonData.thumbnail = { url: thumbnailUrl };
 
-            const imageUrl = document.getElementById('imageUrl').value.trim(); // New field
+            const imageUrl = document.getElementById('imageUrl').value.trim();
             if (imageUrl) jsonData.image = { url: imageUrl };
 
             const authorName = document.getElementById('authorName').value.trim();
@@ -311,7 +111,8 @@
             for (let i = 1; i <= fieldCount; i++) {
                 const fieldName = document.getElementById(`fieldName-${i}`)?.value.trim();
                 const fieldValue = document.getElementById(`fieldValue-${i}`)?.value.trim();
-                
+                const fieldInline = document.getElementById(`fieldInline-${i}`)?.checked || false;
+
                 if (fieldName && fieldValue) {
                     if (fieldName.length > CHAR_LIMIT_FIELD_NAME) {
                         showNotification("Exceeds max characters for field name!");
@@ -321,7 +122,7 @@
                         showNotification("Exceeds max characters for field value!");
                         return;
                     }
-                    fields.push({ name: fieldName, value: fieldValue });
+                    fields.push({ name: fieldName, value: fieldValue, inline: fieldInline });
                     totalChars += fieldName.length + fieldValue.length;
                     if (totalChars > 6000) {
                         showNotification("Exceeds total character limit for embed!");
@@ -331,15 +132,15 @@
             }
             if (fields.length > 0) jsonData.fields = fields;
 
-            document.getElementById('output').textContent = JSON.stringify([jsonData], null, 2);
+            document.getElementById('output').textContent = JSON.stringify(jsonData, null, 2);
+            document.getElementById('output').classList.remove('copied');
         }
 
         function copyJSON() {
             const output = document.getElementById('output');
             navigator.clipboard.writeText(output.textContent).then(() => {
-                showNotification("JSON Copied!");
                 output.classList.add('copied');
-                setTimeout(() => output.classList.remove('copied'), 500);
+                showNotification("Copied to clipboard!");
             });
         }
 
@@ -347,7 +148,9 @@
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.style.display = 'block';
-            setTimeout(() => notification.style.display = 'none', 5000);
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
         }
     </script>
 </body>
