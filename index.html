@@ -230,8 +230,8 @@
             const fieldsContainer = document.getElementById('fields');
             const fieldDiv = document.createElement('div');
             fieldDiv.className = 'field-item';
-            fieldDiv.id = field-${fieldCount};
-            fieldDiv.innerHTML = 
+            fieldDiv.id = `field-${fieldCount}`;
+            fieldDiv.innerHTML = `
                 <label for="fieldName-${fieldCount}">Field Name:</label>
                 <input type="text" id="fieldName-${fieldCount}" maxlength="256">
 
@@ -239,12 +239,12 @@
                 <textarea id="fieldValue-${fieldCount}" maxlength="1024"></textarea>
 
                 <button type="button" onclick="removeField(${fieldCount})">Remove Field</button>
-            ;
+            `;
             fieldsContainer.appendChild(fieldDiv);
         }
 
         function removeField(fieldId) {
-            const fieldDiv = document.getElementById(field-${fieldId});
+            const fieldDiv = document.getElementById(`field-${fieldId}`);
             if (fieldDiv) {
                 fieldDiv.remove();
                 fieldCount--;
@@ -309,8 +309,8 @@
             let totalChars = 0;
 
             for (let i = 1; i <= fieldCount; i++) {
-                const fieldName = document.getElementById(fieldName-${i})?.value.trim();
-                const fieldValue = document.getElementById(fieldValue-${i})?.value.trim();
+                const fieldName = document.getElementById(`fieldName-${i}`)?.value.trim();
+                const fieldValue = document.getElementById(`fieldValue-${i}`)?.value.trim();
                 
                 if (fieldName && fieldValue) {
                     if (fieldName.length > CHAR_LIMIT_FIELD_NAME) {
