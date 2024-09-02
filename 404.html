@@ -23,13 +23,15 @@
 
         #spotlight {
             position: absolute;
-            width: 150px;
-            height: 150px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
             pointer-events: none;
             background: url('404backstage.png') no-repeat center center;
             background-size: cover;
-            mix-blend-mode: lighten;
+            filter: brightness(1.2);
+            mask-image: radial-gradient(circle, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 100%);
+            -webkit-mask-image: radial-gradient(circle, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 100%);
         }
     </style>
 </head>
