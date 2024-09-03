@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord JSON Generator</title>
+    <link rel="icon" href="https://embeds.magicgamer.xyz/favicon.ico" type="image/x-icon"> <!-- Update path -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <img src="https://embeds.magicgamer.xyz/jsonembedicon.png" alt="Icon"> <!-- Update path -->
+        <h1>Embed Generator by MagicGamer</h1>
+    </div>
+
+    <div class="container">
+        <h1>Discord JSON Generator</h1>
+        <form id="jsonForm">
+            <label for="title">Title:</label>
+            <input type="text" id="title" maxlength="256">
+
+            <label for="description">Description:</label>
+            <textarea id="description" maxlength="4096"></textarea>
+
+            <div class="color-field">
+                <label for="color">Color (decimal):</label>
+                <input type="number" id="color" min="0">
+                <a href="https://colors.magicgamer.xyz/" target="_blank" class="color-link">Need to generate color?</a>
+            </div>
+
+            <label for="footerText">Footer Text:</label>
+            <input type="text" id="footerText" maxlength="2048">
+
+            <label for="footerIcon">Footer Icon URL:</label>
+            <input type="url" id="footerIcon">
+
+            <label for="thumbnailUrl">Thumbnail URL:</label>
+            <input type="url" id="thumbnailUrl">
+
+            <label for="imageUrl">Image URL:</label>
+            <input type="url" id="imageUrl">
+
+            <label for="authorName">Author Name:</label>
+            <input type="text" id="authorName" maxlength="256">
+
+            <label for="authorIcon">Author Icon URL:</label>
+            <input type="url" id="authorIcon">
+
+            <div class="fields-container">
+                <h2>Fields:</h2>
+                <div id="fields"></div>
+                <button type="button" onclick="addField()">Add Field</button>
+            </div>
+
+            <button type="button" onclick="generateJSON()">Generate JSON</button>
+        </form>
+
+        <h2>Generated JSON:</h2>
+        <pre id="output" onclick="copyJSON()"></pre>
+
+        <div id="notification">Notification</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
