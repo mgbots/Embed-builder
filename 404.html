@@ -3,77 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Not Found</title>
+    <title>404 Not Found</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
-            width: 100%;
             height: 100%;
             overflow: hidden;
-        }
-
-        #container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Main Background */
-        #background1 {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: url('404.png') no-repeat center center;
+            background: url('404.png') no-repeat center center fixed; 
             background-size: cover;
-        }
-
-        /* Spotlight Effect */
-        #spotlight {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            pointer-events: none;
-            background: radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.7) 90%);
-            overflow: hidden;
-        }
-
-        /* Revealed Background */
-        #background2 {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: url('404backstage.png') no-repeat center center;
-            background-size: cover;
-            clip-path: circle(0 at center);
-            transition: clip-path 0.1s ease;
         }
     </style>
 </head>
 <body>
-
-<div id="container">
-    <div id="background1"></div>
-    <div id="spotlight">
-        <div id="background2"></div>
-    </div>
-</div>
-
-<script>
-    const spotlight = document.getElementById('spotlight');
-    const background2 = document.getElementById('background2');
-
-    document.addEventListener('mousemove', (e) => {
-        const x = e.pageX - spotlight.offsetWidth / 2;
-        const y = e.pageY - spotlight.offsetHeight / 2;
-
-        spotlight.style.left = `${x}px`;
-        spotlight.style.top = `${y}px`;
-
-        background2.style.clipPath = `circle(100px at ${x + 100}px ${y + 100}px)`;
-    });
-</script>
-
 </body>
 </html>
